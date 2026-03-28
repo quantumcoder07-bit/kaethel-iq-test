@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaethel | High-Signal IQ Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+        body { font-family: 'Space+Grotesk', sans-serif; background: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="quiz-container" class="glass max-w-2xl w-full p-8 rounded-3xl shadow-2xl">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold tracking-tighter text-blue-400 uppercase">K-Cognitive Engine</h1>
+            <div id="timer" class="text-xl font-mono bg-red-500/20 text-red-400 px-4 py-1 rounded-full border border-red-500/50">10:00</div>
+        </div>
+
+        <div id="question-box">
+            <div class="mb-2 text-sm text-slate-400 uppercase tracking-widest" id="q-progress">Question 1 of 10</div>
+            <h2 id="question-text" class="text-xl font-medium mb-6 leading-relaxed">Loading questions...</h2>
+            
+            <div id="options" class="grid gap-4">
+                </div>
+        </div>
+
+        <div id="results" class="hidden text-center">
+            <h2 class="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Analysis Complete</h2>
+            <div class="text-6xl font-bold mb-6" id="iq-score">--</div>
+            <p id="iq-desc" class="text-slate-400 mb-8"></p>
+            <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-500 px-8 py-3 rounded-xl font-bold transition">Re-Calibrate</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "If all Eons are Artifacts and some Artifacts are Kinetic, are all Eons Kinetic?", a: ["Yes", "No", "Cannot be determined"], c: 2 },
+            { q: "Complete the sequence: 1, 4, 9, 16, 25, ...", a: ["32", "36", "49", "40"], c: 1 },
+            { q: "A clock shows 3:15. What is the angle between the hands?", a: ["0°", "7.5°", "5°", "10°"], c: 1 },
+            { q: "Which word does not belong? [Jupiter, Mars, Sirius, Neptune]", a: ["Jupiter", "Mars", "Sirius", "Neptune"], c: 2 },
+            { q: "If 5 machines take 5 mins to make 5 widgets, how long for 100 machines to make 100 widgets?", a: ["100 mins", "50 mins", "5 mins", "1 min"], c: 2 },
+            { q: "Book is to Reading as Fork is to...", a: ["Eating", "Stabbing", "Silverware", "Kitchen"], c: 0 },
+            { q: "Which number is prime?", a: ["21", "27", "31", "33"], c: 2 },
+            { q: "Find the missing number: 2, 5, 11, 23, ...", a: ["46", "47", "48", "45"], c: 1 },
+            { q: "If you rearrange 'R-A-T-O-B-I', you get the name of a...", a: ["City", "Animal", "Orbit", "Ocean"], c: 2 },
+            { q: "Which shape has the most sides?", a: ["Hexagon", "Trapezoid", "Pentagon", "Rhombus"], c: 0 }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let timeLeft = 600;
+        const timerEl = document.getElementById('timer');
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            let mins = Math.floor(timeLeft / 60);
+            let secs = timeLeft % 60;
+            timerEl.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            if (timeLeft <= 0) endQuiz();
+        }, 1000);
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('q-progress').innerText = `Question ${currentQ + 1} of 10`;
+            document.getElementById('question-text').innerText = q.q;
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = "glass hover:bg-blue-500/20 text-left p-4 rounded-xl transition border border-white/5 active:scale-95";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(i) {
+            if (i === questions[currentQ].c) score++;
+            currentQ++;
+            if (currentQ < questions.length) loadQuestion();
+            else endQuiz();
+        }
+
+        function endQuiz() {
+            clearInterval(timer);
+            document.getElementById('question-box').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            
+            // Logic: Base 100 + (Accuracy * 4) + (Time Bonus)
+            const timeUsed = 600 - timeLeft;
+            const timeBonus = Math.max(0, (300 - timeUsed) / 10); // Faster than 5 mins = bonus
+            const calculatedIQ = Math.round(80 + (score * 5) + timeBonus);
+            
+            document.getElementById('iq-score').innerText = calculatedIQ;
+            document.getElementById('iq-desc').innerText = `You answered ${score}/10 correctly in ${timeUsed} seconds.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
