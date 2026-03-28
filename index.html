@@ -83,20 +83,52 @@
             if (currentQ < questions.length) loadQuestion();
             else endQuiz();
         }
+function endQuiz() {
+    clearInterval(timer);
+    document.getElementById('question-box').classList.add('hidden');
+    document.getElementById('results').classList.remove('hidden');
+    
+    const timeUsed = 600 - timeLeft;
+    let timeBonus = 0;
+    
+    // THE GATEKEEPER: Only give a speed bonus if accuracy is high (7/10 or better)
+    if (score >= 7) {
+        timeBonus = Math.max(0, (300 - timeUsed) / 5); // Higher reward for high-accuracy speed
+    } else if (score < 4) {
+        timeBonus = -10; // Penalty for being fast AND wrong
+    }
 
-        function endQuiz() {
-            clearInterval(timer);
-            document.getElementById('question-box').classList.add('hidden');
-            document.getElementById('results').classList.remove('hidden');
-            
-            // Logic: Base 100 + (Accuracy * 4) + (Time Bonus)
-            const timeUsed = 600 - timeLeft;
-            const timeBonus = Math.max(0, (300 - timeUsed) / 10); // Faster than 5 mins = bonus
-            const calculatedIQ = Math.round(80 + (score * 5) + timeBonus);
-            
-            document.getElementById('iq-score').innerText = calculatedIQ;
-            document.getElementById('iq-desc').innerText = `You answered ${score}/10 correctly in ${timeUsed} seconds.`;
-        }
+    // New "Truth" Formula
+    const calculatedIQ = Math.round(75 + (score * 5) + timeBonus);
+    
+    let roast = "";
+    if (calculatedIQ >= 130 && score >= 9) {
+        roast = "Logic Check: Verified. You're operating at peak high-signal levels. A rare sight.";
+    } else if (calculatedIQ >= 115) {
+        roast = "Respectable. You have a functional prefrontal cortex. Don't waste it.";
+    } else if (score < 6 && timeUsed < 120) {
+        roast = "You're speed-running failure. 50% accuracy isn't 'fast,' it's just guessing. K-AI is unimpressed.";
+    } else if (calculatedIQ < 100) {
+        roast = "System Alert: Cognitive lag detected. Maybe stick to scrolling reels; this logic stuff clearly isn't your 'Universe.'";
+    } else {
+        roast = "You are the human equivalent of a participation trophy. Average in every single metric.";
+    }
+
+    document.getElementById('iq-score').innerText = calculatedIQ;
+    document.getElementById('iq-desc').innerHTML = `
+        <div class="mt-4 p-4 border border-blue-500/30 rounded-2xl bg-blue-500/5">
+            <span class="text-blue-400 font-bold uppercase tracking-widest text-xs">K-AI Evaluation:</span>
+            <p class="text-lg italic mt-1">"${roast}"</p>
+        </div>
+        <div class="flex justify-around mt-6 text-xs uppercase tracking-tighter text-slate-500">
+            <span>Accuracy: ${score * 10}%</span>
+            <span>Velocity: ${timeUsed}s</span>
+            <span>Status: ${score >= 7 ? 'Valid' : 'Low Signal'}</span>
+        </div>
+    `;
+}
+        
+        
 
         loadQuestion();
     </script>
